@@ -1,0 +1,6 @@
+{
+  "name": "Controle de Estoque",
+  "description": "Sistema de controle de estoque e inventário com painel administrativo interativo.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
