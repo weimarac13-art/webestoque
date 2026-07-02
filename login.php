@@ -45,13 +45,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="w-full max-w-md">
         <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
             <div class="p-10 pb-6 text-center">
-                <div class="w-20 h-20 bg-gradient-to-br from-[#2563eb] to-[#1e3a8a] rounded-2xl mx-auto flex items-center justify-center shadow-lg mb-4">
-                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-24 h-24 bg-gradient-to-br from-[#2563eb] to-[#1e3a8a] rounded-3xl mx-auto flex items-center justify-center shadow-lg mb-4">
+                    <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                     </svg>
                 </div>
-                <h1 class="text-3xl font-black text-gray-900 tracking-tight">WebEstoque</h1>
-                <p class="text-sm text-gray-500 mt-2">Faça login para continuar</p>
+                <h1 class="text-3xl font-black text-gray-900 tracking-tight mb-0.5">WebEstoque</h1>
+                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest block">Controle de Estoque</span>
+                <p class="text-sm text-gray-500 mt-4">Faça login para continuar</p>
             </div>
             
             <form method="POST" action="login.php" class="p-10 pt-0 space-y-5">
@@ -61,12 +62,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                 <?php endif; ?>
                 
-                <div>
-                    <input type="text" name="username" required placeholder="Seu usuário" class="w-full bg-gray-50 rounded-xl px-5 py-4 text-sm font-semibold outline-none focus:bg-white focus:ring-2 focus:ring-[#2563eb]/50 transition-all border border-transparent focus:border-[#2563eb]/30">
+                <div class="space-y-1.5">
+                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest pl-1">Usuário</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-[#2563eb]">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        </div>
+                        <input type="text" name="username" required placeholder="Seu usuário" class="w-full bg-slate-50/50 rounded-2xl pl-12 pr-5 py-4 text-sm font-semibold text-slate-700 outline-none focus:bg-white focus:ring-2 focus:ring-[#2563eb]/50 transition-all border border-slate-200 focus:border-[#2563eb]/30 placeholder:text-slate-300">
+                    </div>
                 </div>
                 
-                <div>
-                    <input type="password" name="password" required placeholder="Sua senha" class="w-full bg-gray-50 rounded-xl px-5 py-4 text-sm font-semibold outline-none focus:bg-white focus:ring-2 focus:ring-[#2563eb]/50 transition-all border border-transparent focus:border-[#2563eb]/30">
+                <div class="space-y-1.5">
+                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest pl-1">Senha</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-[#2563eb]">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        </div>
+                        <input type="password" name="password" required placeholder="••••••••" class="w-full bg-slate-50/50 rounded-2xl pl-12 pr-5 py-4 text-sm font-semibold text-slate-700 outline-none focus:bg-white focus:ring-2 focus:ring-[#2563eb]/50 transition-all border border-slate-200 focus:border-[#2563eb]/30 placeholder:text-slate-300">
+                    </div>
                 </div>
                 
                 <div class="pt-2">

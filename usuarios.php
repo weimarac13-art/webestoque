@@ -60,57 +60,56 @@ include 'layout/header.php';
     </div>
 
     <!-- List -->
-    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="p-5 border-b border-gray-50 bg-gray-50/50 flex justify-between items-center">
-            <div>
-                <h3 class="font-bold text-gray-900">Usuários Cadastrados</h3>
-            </div>
-            <span class="text-xs font-bold text-gray-400 bg-white px-2 py-1 border border-gray-100 rounded-lg shadow-sm">
+    <div>
+        <div class="mb-4 flex items-center justify-between">
+            <h3 class="font-bold text-gray-800 text-sm tracking-wide uppercase">Usuários Cadastrados</h3>
+            <span class="text-xs font-bold text-gray-400 bg-white px-3 py-1.5 border border-gray-100 rounded-xl shadow-sm">
                 <?= count($users) ?> cadastrado(s)
             </span>
         </div>
 
-        <?php
-require_once 'middleware.php'; if (count($users) == 0): ?>
-            <div class="p-8 text-center text-gray-400 text-sm">
-                Nenhum usuário cadastrado.
+        <?php if (count($users) == 0): ?>
+            <div class="p-12 text-center bg-white rounded-3xl border border-gray-100 shadow-sm">
+                <p class="text-gray-400 text-sm font-medium">Nenhum usuário cadastrado.</p>
             </div>
-        <?php
-require_once 'middleware.php'; else: ?>
-            <div class="divide-y divide-gray-100">
-                <?php
-require_once 'middleware.php'; foreach ($users as $u): ?>
-                    <div class="p-5 hover:bg-gray-50 transition-colors flex items-center justify-between gap-4">
-                        <div class="flex items-center gap-3">
-                            <div class="h-10 w-10 bg-gray-100 rounded-xl flex items-center justify-center font-bold text-gray-400">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+        <?php else: ?>
+            <div class="space-y-3">
+                <?php foreach ($users as $u): ?>
+                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center justify-between gap-4 hover:shadow-md hover:border-blue-100 hover:-translate-y-0.5 transition-all duration-300 group relative overflow-hidden">
+                        
+                        <!-- Subtle background gradient on hover -->
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-50/0 via-blue-50/0 to-blue-50/30 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+
+                        <div class="flex items-center gap-4 flex-1 relative z-10">
+                            <div class="h-12 w-12 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-blue-50 group-hover:text-[#2563eb] group-hover:scale-105 transition-all duration-300">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                             </div>
                             <div>
-                                <h4 class="text-base font-bold text-gray-900"><?= htmlspecialchars($u['nome']) ?></h4>
-                                <p class="text-xs text-gray-500">Usuário: <?= htmlspecialchars($u['username']) ?> • Perfil: <?= htmlspecialchars($u['perfil']) ?></p>
+                                <h4 class="text-base font-extrabold text-gray-900 group-hover:text-[#2563eb] transition-colors"><?= htmlspecialchars($u['nome']) ?></h4>
+                                <p class="text-xs text-gray-500 font-semibold mt-0.5">Usuário: <?= htmlspecialchars($u['username']) ?> • Perfil: 
+                                    <span class="font-bold bg-gray-50 px-2 py-0.5 rounded-md inline-block text-blue-700"><?= htmlspecialchars($u['perfil']) ?></span>
+                                </p>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 relative z-10 opacity-50 group-hover:opacity-100 transition-opacity">
                             <button
                                 @click="modalOpen = true; formId = '<?= $u['id'] ?>'; formNome = '<?= htmlspecialchars($u['nome'], ENT_QUOTES) ?>'; formUsername = '<?= htmlspecialchars($u['username'], ENT_QUOTES) ?>'; formPerfil = '<?= htmlspecialchars($u['perfil'], ENT_QUOTES) ?>';"
-                                class="p-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition"
+                                class="p-2.5 rounded-xl text-gray-400 hover:text-[#2563eb] hover:bg-blue-50 transition-colors"
                             >
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                             </button>
                             <form method="POST" action="usuarios.php" onsubmit="return confirm('Excluir este usuário?');" class="inline">
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="id" value="<?= $u['id'] ?>">
-                                <button type="submit" class="p-2 rounded-xl text-red-400 hover:text-red-600 hover:bg-red-50 transition">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                <button type="submit" class="p-2.5 rounded-xl text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                 </button>
                             </form>
                         </div>
                     </div>
-                <?php
-require_once 'middleware.php'; endforeach; ?>
+                <?php endforeach; ?>
             </div>
-        <?php
-require_once 'middleware.php'; endif; ?>
+        <?php endif; ?>
     </div>
 
     <!-- Modal Form -->

@@ -262,7 +262,7 @@ include 'layout/header.php';
                         </div>
                         <div class="flex items-center gap-6 relative z-10">
                             <div class="text-right">
-                                <div class="text-2xl font-black text-gray-900 tracking-tight">
+                                <div class="text-2xl font-black <?= $m['type'] == 'ENTRADA' ? 'text-emerald-600' : 'text-rose-600' ?> tracking-tight">
                                     <?= $m['quantity'] ?>
                                 </div>
                                 <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Un</div>
@@ -426,7 +426,7 @@ include 'layout/header.php';
                 
                 <div class="flex gap-3 pt-2">
                     <button type="button" @click="modalOpen = false" class="flex-1 rounded-xl border border-gray-200 py-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">Cancelar</button>
-                    <button type="submit" class="flex-1 rounded-xl bg-gray-900 py-3 text-sm font-semibold text-white shadow-md hover:bg-gray-800 transition">Salvar Movimento</button>
+                    <button type="submit" class="flex-1 rounded-xl bg-[#2563eb] py-3 text-sm font-semibold text-white shadow-md shadow-[#2563eb]/30 hover:bg-[#1d4ed8] transition">Salvar Movimento</button>
                 </div>
             </form>
         </div>

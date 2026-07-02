@@ -57,6 +57,7 @@ include 'layout/header.php';
 <div class="space-y-5" x-data="{ 
     modalOpen: false, 
     showPrompt: <?= $showPrompt ?>,
+    searchQuery: '',
     formId: '', formSku: '', formName: '', formCategory: '', formQtd: 0, formMinQtd: 0, formCost: 0, formSale: 0, formSupplier: '', formLoc: '', formDesc: '', formEstoque: 'Caixa Econômica Federal'
 }">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -73,26 +74,38 @@ include 'layout/header.php';
         </button>
     </div>
 
-    <!-- List -->
-    <div>
-        <div class="mb-4 flex items-center justify-between">
-            <h3 class="font-bold text-gray-800 text-sm tracking-wide uppercase">Catálogo</h3>
-            <span class="text-xs font-bold text-gray-400 bg-white px-3 py-1.5 border border-gray-100 rounded-xl shadow-sm">
-                <?= count($products) ?> cadastrado(s)
-            </span>
+    <!-- Search Bar -->
+    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 mb-6 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-[#2563eb]/5 to-transparent opacity-50 pointer-events-none"></div>
+        <h3 class="font-bold text-gray-900 text-base tracking-tight mb-3 relative z-10 flex items-center gap-2">
+            <svg class="w-5 h-5 text-[#2563eb]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            Buscar Peça Existente
+        </h3>
+        <div class="relative z-10">
+            <input type="text" x-model="searchQuery" placeholder="Digite o nome da peça para pesquisar, editar ou excluir..." class="w-full bg-white rounded-xl px-5 py-3.5 text-sm font-semibold outline-none focus:ring-2 focus:ring-[#2563eb] transition-all border border-gray-200 shadow-inner">
         </div>
+        <p class="text-[11px] text-gray-400 font-medium mt-3 relative z-10 uppercase tracking-widest">
+            A lista só será exibida ao pesquisar
+        </p>
+    </div>
 
+    <!-- Search Results (Only visible if search is active) -->
+    <div x-show="searchQuery.trim().length > 0" style="display: none;" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+        <div class="mb-4 flex items-center justify-between">
+            <h3 class="font-bold text-gray-800 text-sm tracking-wide uppercase">Resultados da Busca</h3>
+        </div>
+        
         <?php
 require_once 'middleware.php'; if (count($products) == 0): ?>
             <div class="p-12 text-center bg-white rounded-3xl border border-gray-100 shadow-sm">
-                <p class="text-gray-400 text-sm font-medium">Nenhuma peça cadastrada.</p>
+                <p class="text-gray-400 text-sm font-medium">Nenhuma peça cadastrada ainda.</p>
             </div>
         <?php
 require_once 'middleware.php'; else: ?>
             <div class="space-y-3">
                 <?php
 require_once 'middleware.php'; foreach ($products as $p): ?>
-                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center justify-between gap-4 hover:shadow-md hover:border-blue-100 hover:-translate-y-0.5 transition-all duration-300 group relative overflow-hidden">
+                    <div x-show="String('<?= htmlspecialchars($p['name'], ENT_QUOTES) ?>').toLowerCase().includes(searchQuery.toLowerCase())" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center justify-between gap-4 hover:shadow-md hover:border-blue-100 hover:-translate-y-0.5 transition-all duration-300 group relative overflow-hidden" style="display: none;">
                         
                         <!-- Subtle background gradient on hover -->
                         <div class="absolute inset-0 bg-gradient-to-r from-blue-50/0 via-blue-50/0 to-blue-50/30 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
