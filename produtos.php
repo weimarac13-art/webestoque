@@ -21,10 +21,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($id) {
             $stmt = $db->prepare("UPDATE products SET sku=:s, name=:n, category=:c, quantity=:q, minQuantity=:mq, costPrice=:cp, salePrice=:sp, supplier=:sup, location=:l, description=:d, estoque=:est WHERE id=:id");
             $stmt->execute([':id'=>$id, ':s'=>$sku, ':n'=>$name, ':c'=>$category, ':q'=>$quantity, ':mq'=>$minQuantity, ':cp'=>$costPrice, ':sp'=>$salePrice, ':sup'=>$supplier, ':l'=>$location, ':d'=>$description, ':est'=>$estoque]);
+            require_once 'api/logger.php';
+            logAction($db, 'Editar', "Produto " . $name . " editado.");
         } else {
             $id = 'prod-' . time();
             $stmt = $db->prepare("INSERT INTO products (id, sku, name, category, quantity, minQuantity, costPrice, salePrice, supplier, location, description, estoque, createdAt) VALUES (:id, :s, :n, :c, :q, :mq, :cp, :sp, :sup, :l, :d, :est, :ca)");
             $stmt->execute([':id'=>$id, ':s'=>$sku, ':n'=>$name, ':c'=>$category, ':q'=>$quantity, ':mq'=>$minQuantity, ':cp'=>$costPrice, ':sp'=>$salePrice, ':sup'=>$supplier, ':l'=>$location, ':d'=>$description, ':est'=>$estoque, ':ca'=>date('Y-m-d H:i:s')]);
+            require_once 'api/logger.php';
+            logAction($db, 'Novo', "Produto " . $name . " cadastrado.");
         }
         header("Location: produtos.php?saved=1");
         exit;
@@ -35,6 +39,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($id) {
             $stmt = $db->prepare("DELETE FROM products WHERE id = :id");
             $stmt->execute([':id' => $id]);
+            require_once 'api/logger.php';
+            logAction($db, 'Excluir', "Produto ID " . $id . " excluído.");
         }
         header("Location: produtos.php");
         exit;
@@ -133,7 +139,7 @@ require_once 'middleware.php';
                             >
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                             </button>
-                            <form method="POST" action="produtos.php" onsubmit="return confirm('Excluir esta peça?');" class="inline">
+                            <form method="POST" action="produtos.php" onsubmit="event.preventDefault(); WebEstoque.confirm('Excluir esta peça?', 'Excluir Peça', 'danger').then(c => { if(c) this.submit(); });" class="inline">
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="id" value="<?= $p['id'] ?>">
                                 <button type="submit" class="p-2.5 rounded-xl text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors">

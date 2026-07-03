@@ -9,11 +9,19 @@ try {
         createdAt DATETIME NOT NULL,
         userName VARCHAR(255) NOT NULL,
         userId VARCHAR(50),
+        perfil VARCHAR(100),
         action VARCHAR(100) NOT NULL,
         details TEXT,
         ipAddress VARCHAR(45),
         userAgent TEXT
     )");
+    
+    // Assegurar que a coluna perfil existe (caso a tabela já existisse)
+    try {
+        $db->exec("ALTER TABLE system_logs ADD COLUMN perfil VARCHAR(100) AFTER userId");
+    } catch (PDOException $e) {
+        // Ignora se já existir
+    }
 } catch (PDOException $e) {
     // Ignora se der erro ou já existir
 }
@@ -52,6 +60,7 @@ require_once 'layout/header.php';
                 <tr class="bg-gray-50/50 border-b border-gray-100">
                     <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">Data / Hora</th>
                     <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">Usuário</th>
+                    <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">Perfil</th>
                     <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">Ação</th>
                     <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">Detalhes</th>
                     <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap hidden lg:table-cell">IP / Origem</th>
@@ -78,6 +87,9 @@ require_once 'layout/header.php';
                             <div class="text-[10px] text-gray-400 font-mono"><?php echo htmlspecialchars($l['userId']) ?: 'Sistema'; ?></div>
                         </td>
                         <td class="px-6 py-4">
+                            <div class="text-sm text-gray-600 font-medium"><?php echo htmlspecialchars($l['perfil'] ?? 'Desconhecido'); ?></div>
+                        </td>
+                        <td class="px-6 py-4">
                             <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase <?php echo $action_class; ?>">
                                 <?php echo htmlspecialchars($l['action']); ?>
                             </span>
@@ -95,7 +107,7 @@ require_once 'layout/header.php';
                         </td>
                     </tr>
                 <?php endforeach; else: ?>
-                    <tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 italic">Nenhum registro de log encontrado.</td></tr>
+                    <tr><td colspan="6" class="px-6 py-12 text-center text-gray-400 italic">Nenhum registro de log encontrado.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>

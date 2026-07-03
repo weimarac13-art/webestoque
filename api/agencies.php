@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once 'db.php';
+require_once 'logger.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $db = Database::getConnection();
@@ -51,6 +52,7 @@ switch ($method) {
                     ':codigo' => $data['codigo'],
                     ':nome' => $data['nome']
                 ]);
+                logAction($db, 'Editar', "Agência " . $data['nome'] . " editada.");
             } else {
                 $sql = "INSERT INTO agencies (id, codigo, nome, createdAt) 
                         VALUES (:id, :codigo, :nome, :createdAt)";
@@ -62,6 +64,7 @@ switch ($method) {
                     ':nome' => $data['nome'],
                     ':createdAt' => $data['createdAt'] ?? date('Y-m-d H:i:s')
                 ]);
+                logAction($db, 'Novo', "Agência " . $data['nome'] . " cadastrada.");
             }
             echo json_encode(["success" => true, "id" => $data['id']]);
         } catch(PDOException $e) {
@@ -81,6 +84,7 @@ switch ($method) {
         try {
             $stmt = $db->prepare("DELETE FROM agencies WHERE id = :id");
             $stmt->execute([':id' => $id]);
+            logAction($db, 'Excluir', "Agência ID " . $id . " excluída.");
             echo json_encode(["success" => true]);
         } catch(PDOException $e) {
             http_response_code(500);

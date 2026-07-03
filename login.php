@@ -25,6 +25,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['nome'] = $user['nome'];
         $_SESSION['perfil'] = $user['perfil'];
         $_SESSION['user_id'] = $user['id'];
+        
+        require_once('api/logger.php');
+        logAction($db, 'Login', 'Login realizado com sucesso.');
+        
         header("Location: index.php");
         exit;
     } else {
@@ -35,19 +39,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="WebEstoque">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#2563eb">
+    <?php $logoV = file_exists('assets/logo.png') ? filemtime('assets/logo.png') : time(); ?>
+    <link rel="manifest" href="manifest.php?v=<?= $logoV ?>">
+    <link rel="icon" href="assets/logo.svg?v=<?= filemtime('assets/logo.svg') ?>" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="assets/logo.png?v=<?= $logoV ?>">
     <title>Login - WebEstoque</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }</style>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js');
+            });
+        }
+    </script>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
     <div class="w-full max-w-md">
         <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
             <div class="p-10 pb-6 text-center">
                 <div class="w-24 h-24 bg-gradient-to-br from-[#2563eb] to-[#1e3a8a] rounded-3xl mx-auto flex items-center justify-center shadow-lg mb-4">
-                    <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    <svg class="w-[90%] h-[90%] text-white" viewBox="1 2 22 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+                        <path d="M2 13H22" stroke="currentColor" stroke-width="2"/>
+                        <path d="M9 21H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 17V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <text x="12" y="10.5" text-anchor="middle" font-size="7" font-weight="900" font-family="Inter, sans-serif" fill="currentColor">WE</text>
                     </svg>
                 </div>
                 <h1 class="text-3xl font-black text-gray-900 tracking-tight mb-0.5">WebEstoque</h1>

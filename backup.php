@@ -226,17 +226,7 @@ require_once 'layout/header.php';
 </div>
 
 <script>
-// Mock toast if not exist in webestoque
-const WebEstoque = {
-    toast: function(msg, type) {
-        if(type !== 'success' || !msg.includes('Backup')) {
-            alert(msg);
-        }
-    },
-    confirm: async function(msg) {
-        return confirm(msg);
-    }
-};
+
 
 async function startExport() {
     const btn    = document.getElementById('btn-export');

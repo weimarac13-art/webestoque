@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once 'db.php';
+require_once 'logger.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $db = Database::getConnection();
@@ -74,6 +75,7 @@ switch ($method) {
             ]);
 
             $db->commit();
+            logAction($db, 'Novo', "Movimentação (" . $data['type'] . ") - Produto: " . $data['productName'] . " - Qtd: " . $data['quantity']);
             echo json_encode(["success" => true, "id" => $data['id']]);
 
         } catch(PDOException $e) {

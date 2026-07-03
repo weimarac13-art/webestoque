@@ -1,15 +1,11 @@
-const CACHE_NAME = 'webestoque-v8';
+const CACHE_NAME = 'webestoque-v11';
 const ASSETS_TO_CACHE = [
-  './',
-  './index.php',
-  './manifest.json'
+  'assets/logo.png'
 ];
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(ASSETS_TO_CACHE))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS_TO_CACHE))
   );
 });
 
@@ -28,8 +24,14 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // PWA requires a fetch handler to show the install prompt
+  const url = event.request.url;
+  // Ignore non-GET, PHP pages, API
+  if (event.request.method !== 'GET' || url.includes('.php') || url.includes('/api/')) {
+      return;
+  }
   event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
+    caches.match(event.request).then(response => {
+        return response || fetch(event.request);
+    })
   );
 });

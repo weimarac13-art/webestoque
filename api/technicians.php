@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once 'db.php';
+require_once 'logger.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $db = Database::getConnection();
@@ -58,6 +59,7 @@ switch ($method) {
                     ':celPessoal' => $data['celPessoal'],
                     ':celCorporativo' => $data['celCorporativo']
                 ]);
+                logAction($db, 'Editar', "Técnico " . $data['nome'] . " editado.");
             } else {
                 $sql = "INSERT INTO technicians (id, matricula, nome, cpf, rg, dataNascimento, celPessoal, celCorporativo, createdAt) 
                         VALUES (:id, :matricula, :nome, :cpf, :rg, :dataNascimento, :celPessoal, :celCorporativo, :createdAt)";
@@ -74,6 +76,7 @@ switch ($method) {
                     ':celCorporativo' => $data['celCorporativo'],
                     ':createdAt' => $data['createdAt'] ?? date('Y-m-d H:i:s')
                 ]);
+                logAction($db, 'Novo', "Técnico " . $data['nome'] . " cadastrado.");
             }
             echo json_encode(["success" => true, "id" => $data['id']]);
         } catch(PDOException $e) {
@@ -93,6 +96,7 @@ switch ($method) {
         try {
             $stmt = $db->prepare("DELETE FROM technicians WHERE id = :id");
             $stmt->execute([':id' => $id]);
+            logAction($db, 'Excluir', "Técnico ID " . $id . " excluído.");
             echo json_encode(["success" => true]);
         } catch(PDOException $e) {
             http_response_code(500);

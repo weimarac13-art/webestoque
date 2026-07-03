@@ -26,11 +26,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
                     }
                     $stmt = $db->prepare("DELETE FROM movements WHERE id = :id");
                     $stmt->execute([':id' => $id]);
+                    require_once 'api/logger.php';
+                    logAction($db, 'Excluir', "Movimentação ID " . $id . " excluída.");
                 }
             }
-            $db->commit();
+            if ($db->inTransaction()) {
+                $db->commit();
+            }
         } catch (Exception $e) {
-            $db->rollBack();
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
         }
         header("Location: movimentacoes.php");
         exit;
@@ -80,6 +86,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
                         ':r' => $reason, ':serie' => $_POST['serie'] ?? '', ':tec' => $_POST['tecnico'] ?? '', ':cham' => $_POST['chamado'] ?? '',
                         ':ud' => $_POST['unidadeDestino'] ?? '', ':usu' => $_POST['usuario'] ?? '', ':mat' => $_POST['matricula'] ?? '', ':id' => $movId
                     ]);
+                    require_once 'api/logger.php';
+                    logAction($db, 'Editar', "Movimentação Editada - Produto: " . $product['name'] . " - Qtd: " . $quantity);
                 }
             } else {
                 // INSERT NEW MOVEMENT
@@ -121,9 +129,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
             ':usu' => $_POST['usuario'] ?? '',
             ':mat' => $_POST['matricula'] ?? ''
         ]);
+                require_once 'api/logger.php';
+                logAction($db, 'Novo', "Movimentação (" . $type . ") - Produto: " . $product['name'] . " - Qtd: " . $quantity);
             }
         
-        $db->commit();
+        if ($db->inTransaction()) {
+            $db->commit();
+        }
         if (!$movId) {
             header("Location: movimentacoes.php?saved=" . urlencode($id));
         } else {
@@ -131,8 +143,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
         }
         exit;
     } catch(Exception $e) {
-        $db->rollBack();
-        die("Erro: " . $e->getMessage());
+        if ($db->inTransaction()) {
+            $db->rollBack();
+        }
+        header("Location: movimentacoes.php?error=" . urlencode($e->getMessage()));
+        exit;
     }
 }
 }
@@ -206,7 +221,7 @@ include 'layout/header.php';
 ?>
 
 <div class="space-y-5" 
-     x-data="{ modalOpen: false, type: 'ENTRADA', estoque: 'Caixa Econômica Federal', productId: '', chamado: 'REQ00000', formSerie: '', availableSeries: <?= htmlspecialchars($jsonSeries, ENT_QUOTES) ?>, formMovId: '', showPrompt: <?= ($whatsappUrl || $teamsUrl) ? 'true' : 'false' ?> }"
+     x-data="{ modalOpen: false, type: 'ENTRADA', estoque: 'Caixa Econômica Federal', productId: '', productName: '', chamado: 'REQ00000', formSerie: '', availableSeries: <?= htmlspecialchars($jsonSeries, ENT_QUOTES) ?>, formMovId: '', showPrompt: <?= ($whatsappUrl || $teamsUrl) ? 'true' : 'false' ?>, quantity: 1 }"
      x-effect="if (!formMovId) { if (type === 'SAÍDA' && estoque === 'Wyntech') { chamado = 'WO00000'; } else if (type === 'SAÍDA' && estoque === 'Caixa Econômica Federal') { chamado = 'REQ00000'; } else { chamado = ''; } }">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -221,6 +236,13 @@ include 'layout/header.php';
             Lançar Movimento
         </button>
     </div>
+    
+    <?php if (isset($_GET['error'])): ?>
+    <div class="p-4 mb-4 text-sm text-red-800 rounded-2xl bg-red-50 border border-red-100 flex items-center gap-3">
+        <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+        <span class="font-bold"><?= htmlspecialchars($_GET['error']) ?></span>
+    </div>
+    <?php endif; ?>
 
     <!-- List -->
     <div>
@@ -281,7 +303,7 @@ include 'layout/header.php';
                                 >
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                 </button>
-                                <form method="POST" action="movimentacoes.php" onsubmit="return confirm('Tem certeza que deseja excluir esta movimentação? A quantidade correspondente retornará ao estoque de origem.');" class="inline">
+                                <form method="POST" action="movimentacoes.php" onsubmit="event.preventDefault(); WebEstoque.confirm('Tem certeza que deseja excluir esta movimentação? A quantidade correspondente retornará ao estoque de origem.', 'Excluir Movimentação', 'danger').then(c => { if(c) this.submit(); });" class="inline">
                                     <input type="hidden" name="action" value="delete">
                                     <input type="hidden" name="id" value="<?= $m['id'] ?>">
                                     <button type="submit" class="p-2.5 rounded-xl text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors">
@@ -332,35 +354,63 @@ include 'layout/header.php';
                 </div>
 
                 <!-- Estoque Selection -->
-                <div>
-                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">Estoque Origem/Destino *</label>
-                    <select name="estoque" required x-model="estoque" class="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 text-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 transition-all font-semibold">
-                        <option value="Caixa Econômica Federal">Caixa Econômica Federal</option>
-                        <option value="Wyntech">Wyntech</option>
-                    </select>
+                <div class="relative" x-data="{ open: false }">
+                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1" x-text="type === 'ENTRADA' ? 'Estoque Destino *' : 'Estoque Origem *'">Estoque Origem *</label>
+                    <div @click="open = !open" class="w-full appearance-none rounded-xl border-0 bg-slate-50 px-4 py-3.5 pr-10 text-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 transition-all font-semibold cursor-pointer" x-text="estoque"></div>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 pt-5 text-gray-500">
+                        <svg class="h-4 w-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div x-show="open" @click.away="open = false" style="display: none;" class="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden py-1">
+                        <div @click="estoque = 'Caixa Econômica Federal'; open = false" class="px-4 py-3 hover:bg-blue-50 cursor-pointer font-semibold text-sm transition-colors" :class="estoque === 'Caixa Econômica Federal' ? 'text-blue-600 bg-blue-50/50' : 'text-gray-700'">Caixa Econômica Federal</div>
+                        <div @click="estoque = 'Wyntech'; open = false" class="px-4 py-3 hover:bg-blue-50 cursor-pointer font-semibold text-sm transition-colors" :class="estoque === 'Wyntech' ? 'text-blue-600 bg-blue-50/50' : 'text-gray-700'">Wyntech</div>
+                    </div>
+                    <input type="hidden" name="estoque" :value="estoque">
                 </div>
 
                 <!-- Product Selection -->
-                <div>
+                <div class="relative" x-data="{ open: false, filter: '' }">
                     <label class="block text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">Peça *</label>
-                    <select name="productId" required x-model="productId" class="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 text-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 transition-all bg-white">
-                        <option value="">Selecione uma peça...</option>
-                        <?php foreach ($products as $p): ?>
-                            <template x-if="estoque === '<?= htmlspecialchars($p['estoque']) ?>' || !'<?= htmlspecialchars($p['estoque']) ?>'">
-                                <option value="<?= $p['id'] ?>"><?= htmlspecialchars($p['name']) ?> (Estoque: <?= $p['quantity'] ?>)</option>
-                            </template>
-                        <?php endforeach; ?>
-                    </select>
+                    <div @click="open = !open; if(open) setTimeout(() => $refs.search.focus(), 50)" class="w-full appearance-none rounded-xl border-0 bg-slate-50 px-4 py-3.5 pr-10 text-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 transition-all bg-white cursor-pointer truncate" x-text="productName || 'Selecione uma peça...'"></div>
+                    <div class="pointer-events-none absolute top-0 right-0 flex items-center px-4 pt-7 text-gray-500">
+                        <svg class="h-4 w-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    
+                    <div x-show="open" @click.away="open = false" style="display: none;" class="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-xl flex flex-col max-h-72 overflow-hidden">
+                        <div class="p-2 border-b border-gray-100 bg-gray-50/50">
+                            <input type="text" x-model="filter" x-ref="search" class="w-full text-sm p-2 bg-white rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" placeholder="Buscar peça...">
+                        </div>
+                        <div class="overflow-y-auto custom-scrollbar flex-1 py-1">
+                            <?php foreach ($products as $p): ?>
+                                <template x-if="(estoque === '<?= htmlspecialchars($p['estoque']) ?>' || !'<?= htmlspecialchars($p['estoque']) ?>') && ('<?= strtolower(addslashes($p['name'])) ?>'.includes(filter.toLowerCase()))">
+                                    <div @click="productId = '<?= $p['id'] ?>'; productName = '<?= htmlspecialchars(addslashes($p['name'])) ?> (Estoque: <?= $p['quantity'] ?>)'; open = false; filter = ''" class="px-4 py-3 hover:bg-blue-50 cursor-pointer text-sm transition-colors border-b border-gray-50 last:border-0" :class="productId === '<?= $p['id'] ?>' ? 'text-blue-600 bg-blue-50/50 font-bold' : 'text-gray-700'">
+                                        <?= htmlspecialchars($p['name']) ?> <span class="text-xs opacity-60 ml-1">(Estoque: <?= $p['quantity'] ?>)</span>
+                                    </div>
+                                </template>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <input type="hidden" name="productId" :value="productId">
                     
                     <template x-if="type === 'SAÍDA' && productId">
-                        <div class="mt-4">
+                        <div class="mt-4 relative" x-data="{ open: false }">
                             <label class="block text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">Série da Peça</label>
-                            <select name="serie" x-model="formSerie" class="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 text-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 transition-all bg-white">
-                                <option value="">Nenhuma / Não se aplica</option>
+                            
+                            <div @click="open = !open" class="w-full appearance-none rounded-xl border-0 bg-slate-50 px-4 py-3.5 pr-10 text-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 transition-all bg-white cursor-pointer truncate" x-text="formSerie || 'Nenhuma / Não se aplica'"></div>
+                            <div class="pointer-events-none absolute top-0 right-0 flex items-center px-4 pt-7 text-gray-500">
+                                <svg class="h-4 w-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                            
+                            <div x-show="open" @click.away="open = false" style="display: none;" class="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-xl max-h-48 overflow-y-auto py-1 custom-scrollbar">
+                                <div @click="formSerie = ''; open = false" class="px-4 py-3 hover:bg-blue-50 cursor-pointer text-sm transition-colors border-b border-gray-50" :class="!formSerie ? 'text-blue-600 bg-blue-50/50 font-bold' : 'text-gray-700'">
+                                    Nenhuma / Não se aplica
+                                </div>
                                 <template x-for="serie in (availableSeries[productId] || [])" :key="serie">
-                                    <option :value="serie" x-text="serie"></option>
+                                    <div @click="formSerie = serie; open = false" class="px-4 py-3 hover:bg-blue-50 cursor-pointer text-sm transition-colors border-b border-gray-50 last:border-0" :class="formSerie === serie ? 'text-blue-600 bg-blue-50/50 font-bold' : 'text-gray-700'" x-text="serie">
+                                    </div>
                                 </template>
-                            </select>
+                            </div>
+                            <input type="hidden" name="serie" :value="formSerie">
+                            
                             <template x-if="!(availableSeries[productId] || []).length">
                                 <p class="text-xs text-gray-400 mt-1 italic">Nenhuma série registrada neste estoque.</p>
                             </template>
@@ -376,8 +426,8 @@ include 'layout/header.php';
                     </div>
                     <template x-if="type === 'SAÍDA'">
                         <div>
-                            <label class="block text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">Chamado *</label>
-                            <input type="text" name="reason" required x-model="chamado" class="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 text-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 transition-all">
+                            <label class="block text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">Chamado <span x-show="estoque === 'Wyntech'">*</span></label>
+                            <input type="text" inputmode="numeric" name="chamado" :required="estoque === 'Wyntech'" x-model="chamado" class="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 text-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 transition-all">
                         </div>
                     </template>
                     <template x-if="type === 'ENTRADA'">
@@ -417,14 +467,22 @@ include 'layout/header.php';
 
                         <template x-if="estoque === 'Wyntech'">
                             <div class="space-y-4">
-                                <div>
+                                <div class="relative" x-data="{ open: false, tec: '' }">
                                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Técnico *</label>
-                                    <select name="tecnico" id="formTecnico" class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-gray-500 bg-white">
-                                        <option value="">Selecione um técnico...</option>
+                                    
+                                    <div @click="open = !open" class="w-full appearance-none rounded-xl border border-gray-200 px-4 py-2.5 pr-10 text-sm outline-none focus:border-gray-500 bg-white cursor-pointer truncate" x-text="tec || 'Selecione um técnico...'"></div>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 pt-5 text-gray-500">
+                                        <svg class="h-4 w-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </div>
+                                    
+                                    <div x-show="open" @click.away="open = false" style="display: none;" class="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-xl max-h-48 overflow-y-auto py-1 custom-scrollbar">
                                         <?php foreach ($technicians as $t): ?>
-                                            <option value="<?= htmlspecialchars($t['nome']) ?>"><?= htmlspecialchars($t['nome']) ?></option>
+                                            <div @click="tec = '<?= htmlspecialchars(addslashes($t['nome'])) ?>'; document.getElementById('formTecnico').value = tec; open = false" class="px-4 py-3 hover:bg-blue-50 cursor-pointer text-sm transition-colors border-b border-gray-50 last:border-0 text-gray-700" :class="tec === '<?= htmlspecialchars(addslashes($t['nome'])) ?>' ? 'text-blue-600 bg-blue-50/50 font-bold' : ''">
+                                                <?= htmlspecialchars($t['nome']) ?>
+                                            </div>
                                         <?php endforeach; ?>
-                                    </select>
+                                    </div>
+                                    <input type="hidden" name="tecnico" id="formTecnico" required :value="tec">
                                 </div>
                             </div>
                         </template>
@@ -497,7 +555,7 @@ include 'layout/header.php';
                     Agora não
                 </button>
                 <a href="<?= htmlspecialchars($teamsUrl) ?>" target="_blank" @click="showPrompt = false" class="px-5 py-2.5 rounded-xl bg-[#5B5FC7] hover:bg-[#464aa6] text-sm font-bold text-white shadow-sm shadow-[#5B5FC7]/30 transition">
-                    Enviar Teams
+                    Enviar<span class="hidden sm:inline"> Teams</span>
                 </a>
             </div>
         </div>

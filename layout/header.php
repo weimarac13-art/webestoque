@@ -10,9 +10,10 @@ require_once __DIR__ . '/../middleware.php';
     <meta name="apple-mobile-web-app-title" content="WebEstoque">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#2563eb">
+    <?php $logoV = file_exists('assets/logo.png') ? filemtime('assets/logo.png') : time(); ?>
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="assets/logo.png" type="image/png">
-    <link rel="apple-touch-icon" href="assets/logo.png">
+    <link rel="icon" href="assets/logo.svg?v=<?= filemtime('assets/logo.svg') ?>" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="assets/logo.png?v=<?= $logoV ?>">
     <title>WebEstoque - Controle de Estoque</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine Plugins -->
@@ -20,6 +21,13 @@ require_once __DIR__ . '/../middleware.php';
     <!-- Alpine.js for lightweight interactions -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js');
+            });
+        }
+    </script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .sidebar-item { display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; color: #4b5563; font-weight: 600; transition: all 0.3s ease; border: 1px solid transparent; }
@@ -36,10 +44,12 @@ require_once __DIR__ . '/../middleware.php';
         </button>
         <div class="flex items-center gap-2">
             <div class="h-8 w-8 bg-[#2563eb] rounded-lg flex items-center justify-center text-white font-bold shadow-sm">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
-                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-                    <path d="M8 21h8M12 17v4"/>
-                    <text x="12" y="13" text-anchor="middle" font-size="9" font-weight="900" font-family="Arial, sans-serif" fill="currentColor" stroke="none">WE</text>
+                <svg class="w-[90%] h-[90%] text-white" viewBox="1 2 22 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+                    <path d="M2 13H22" stroke="currentColor" stroke-width="2"/>
+                    <path d="M9 21H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 17V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <text x="12" y="10.5" text-anchor="middle" font-size="7" font-weight="900" font-family="Inter, sans-serif" fill="currentColor">WE</text>
                 </svg>
             </div>
             <div class="flex flex-col justify-center" style="width: max-content;">
@@ -53,7 +63,7 @@ require_once __DIR__ . '/../middleware.php';
         <!-- Mobile Sidebar Overlay -->
         <div x-show="sidebarOpen" class="fixed inset-0 top-16 bg-gray-900/50 z-40" @click="sidebarOpen = false" style="display: none;" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
         <!-- Mobile Sidebar -->
-        <div x-show="sidebarOpen" class="fixed top-16 left-0 bottom-0 w-64 bg-white z-40 border-r border-gray-200 transition-transform transform overflow-y-auto" x-transition:enter="transition ease-out duration-400" x-transition:enter-start="-translate-y-[150%]" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-300" x-transition:leave-start="translate-y-0" x-transition:leave-end="-translate-y-[150%]" style="display: none;">
+        <div x-show="sidebarOpen" class="fixed top-16 left-0 max-h-[calc(100dvh-4rem)] w-64 bg-white z-40 border-r border-b border-gray-200 rounded-br-2xl transition-transform transform overflow-y-auto shadow-2xl" x-transition:enter="transition ease-out duration-400" x-transition:enter-start="-translate-y-[150%]" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-300" x-transition:leave-start="translate-y-0" x-transition:leave-end="-translate-y-[150%]" style="display: none;">
             <?php include 'sidebar.php'; ?>
         </div>
     </div>
@@ -62,10 +72,12 @@ require_once __DIR__ . '/../middleware.php';
     <aside class="hidden lg:flex w-64 bg-white border-r border-gray-100 flex-col h-full z-10 shadow-sm relative pt-4">
         <div class="px-6 pb-6 border-b border-gray-50 flex items-center gap-3">
             <div class="h-10 w-10 bg-gradient-to-br from-[#2563eb] to-[#1e3a8a] rounded-xl flex items-center justify-center text-white shadow-md">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
-                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-                    <path d="M8 21h8M12 17v4"/>
-                    <text x="12" y="13" text-anchor="middle" font-size="9" font-weight="900" font-family="Arial, sans-serif" fill="currentColor" stroke="none">WE</text>
+                <svg class="w-[90%] h-[90%] text-white" viewBox="1 2 22 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+                    <path d="M2 13H22" stroke="currentColor" stroke-width="2"/>
+                    <path d="M9 21H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 17V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <text x="12" y="10.5" text-anchor="middle" font-size="7" font-weight="900" font-family="Inter, sans-serif" fill="currentColor">WE</text>
                 </svg>
             </div>
             <div class="flex flex-col justify-center" style="width: max-content;">

@@ -43,7 +43,15 @@
                 </a>
                 <a href="produtos.php" class="flex flex-col items-center justify-center p-4 bg-gray-50 border border-gray-100 rounded-3xl text-gray-500 hover:text-[#2563eb] hover:bg-blue-50 hover:border-blue-100 transition-all active:scale-95 group">
                     <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center mb-3 shadow-sm group-hover:bg-[#2563eb] group-hover:text-white transition-colors text-gray-400">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <rect x="2" y="8" width="14" height="10" rx="2" stroke-width="2" />
+                            <line x1="6" y1="12" x2="6.01" y2="12" stroke-width="2" stroke-linecap="round" />
+                            <line x1="10" y1="12" x2="10.01" y2="12" stroke-width="2" stroke-linecap="round" />
+                            <line x1="14" y1="12" x2="14.01" y2="12" stroke-width="2" stroke-linecap="round" />
+                            <line x1="6" y1="15" x2="14" y2="15" stroke-width="2" stroke-linecap="round" />
+                            <rect x="18" y="10" width="4" height="8" rx="2" stroke-width="2" />
+                            <line x1="18" y1="13" x2="22" y2="13" stroke-width="2" />
+                        </svg>
                     </div>
                     <span class="text-xs font-bold text-gray-700 group-hover:text-[#2563eb]">Peça</span>
                 </a>

@@ -11,16 +11,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $cpf = trim($_POST['cpf'] ?? '');
         $rg = trim($_POST['rg'] ?? '');
         $dataNascimento = trim($_POST['dataNascimento'] ?? '');
+        if (strpos($dataNascimento, '/') !== false) {
+            $p = explode('/', $dataNascimento);
+            if (count($p) === 3) {
+                $dataNascimento = $p[2] . '-' . $p[1] . '-' . $p[0];
+            }
+        }
         $celPessoal = trim($_POST['celPessoal'] ?? '');
         $celCorporativo = trim($_POST['celCorporativo'] ?? '');
         
         if ($id) {
             $stmt = $db->prepare("UPDATE technicians SET matricula=:m, nome=:n, cpf=:c, rg=:r, dataNascimento=:d, celPessoal=:cp, celCorporativo=:cc WHERE id=:id");
             $stmt->execute([':id'=>$id, ':m'=>$matricula, ':n'=>$nome, ':c'=>$cpf, ':r'=>$rg, ':d'=>$dataNascimento, ':cp'=>$celPessoal, ':cc'=>$celCorporativo]);
+            require_once 'api/logger.php';
+            logAction($db, 'Editar', "Técnico " . $nome . " editado.");
         } else {
             $id = 'tech-' . time();
             $stmt = $db->prepare("INSERT INTO technicians (id, matricula, nome, cpf, rg, dataNascimento, celPessoal, celCorporativo, createdAt) VALUES (:id, :m, :n, :c, :r, :d, :cp, :cc, :ca)");
             $stmt->execute([':id'=>$id, ':m'=>$matricula, ':n'=>$nome, ':c'=>$cpf, ':r'=>$rg, ':d'=>$dataNascimento, ':cp'=>$celPessoal, ':cc'=>$celCorporativo, ':ca'=>date('Y-m-d H:i:s')]);
+            require_once 'api/logger.php';
+            logAction($db, 'Novo', "Técnico " . $nome . " cadastrado.");
         }
         header("Location: tecnicos.php");
         exit;
@@ -31,6 +41,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($id) {
             $stmt = $db->prepare("DELETE FROM technicians WHERE id = :id");
             $stmt->execute([':id' => $id]);
+            require_once 'api/logger.php';
+            logAction($db, 'Excluir', "Técnico ID " . $id . " excluído.");
         }
         header("Location: tecnicos.php");
         exit;
@@ -98,12 +110,12 @@ require_once 'middleware.php'; foreach ($technicians as $t): ?>
                         </div>
                         <div class="flex items-center gap-2 relative z-10 opacity-50 group-hover:opacity-100 transition-opacity">
                             <button
-                                @click="modalOpen = true; formId = '<?= $t['id'] ?>'; formMatricula = '<?= htmlspecialchars($t['matricula'], ENT_QUOTES) ?>'; formNome = '<?= htmlspecialchars($t['nome'], ENT_QUOTES) ?>'; formCpf = '<?= htmlspecialchars($t['cpf'], ENT_QUOTES) ?>'; formRg = '<?= htmlspecialchars($t['rg'], ENT_QUOTES) ?>'; formDt = '<?= htmlspecialchars($t['dataNascimento'], ENT_QUOTES) ?>'; formCp = '<?= htmlspecialchars($t['celPessoal'], ENT_QUOTES) ?>'; formCc = '<?= htmlspecialchars($t['celCorporativo'], ENT_QUOTES) ?>';"
+                                @click="modalOpen = true; formId = '<?= $t['id'] ?>'; formMatricula = '<?= htmlspecialchars($t['matricula'], ENT_QUOTES) ?>'; formNome = '<?= htmlspecialchars($t['nome'], ENT_QUOTES) ?>'; formCpf = '<?= htmlspecialchars($t['cpf'], ENT_QUOTES) ?>'; formRg = '<?= htmlspecialchars($t['rg'], ENT_QUOTES) ?>'; formDt = '<?= htmlspecialchars($t['dataNascimento'] ? date('d/m/Y', strtotime($t['dataNascimento'])) : '', ENT_QUOTES) ?>'; formCp = '<?= htmlspecialchars($t['celPessoal'], ENT_QUOTES) ?>'; formCc = '<?= htmlspecialchars($t['celCorporativo'], ENT_QUOTES) ?>';"
                                 class="p-2.5 rounded-xl text-gray-400 hover:text-[#2563eb] hover:bg-blue-50 transition-colors"
                             >
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                             </button>
-                            <form method="POST" action="tecnicos.php" onsubmit="return confirm('Excluir este técnico?');" class="inline">
+                            <form method="POST" action="tecnicos.php" onsubmit="event.preventDefault(); WebEstoque.confirm('Excluir este técnico?', 'Excluir Técnico', 'danger').then(c => { if(c) this.submit(); });" class="inline">
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="id" value="<?= $t['id'] ?>">
                                 <button type="submit" class="p-2.5 rounded-xl text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors">
@@ -156,7 +168,7 @@ require_once 'middleware.php'; endif; ?>
                 </div>
                 <div>
                     <label class="block text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">Data Nascimento *</label>
-                    <input type="date" name="dataNascimento" required x-model="formDt" class="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 text-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 transition-all">
+                    <input type="text" inputmode="numeric" x-mask="99/99/9999" placeholder="DD/MM/AAAA" name="dataNascimento" required x-model="formDt" class="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 text-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 transition-all">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>

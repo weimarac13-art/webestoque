@@ -88,7 +88,7 @@ elseif (in_array($currentPage, ['alterar_senha.php'])) $activeGroup = 'alterar_s
     </div>
     <?php endif; ?>
 
-    <div class="mt-8 pt-6 border-t border-gray-100">
+    <div class="mt-4 pt-6 border-t border-gray-100 mb-4">
         <a href="logout.php" class="sidebar-item text-red-500 hover:!bg-red-50 hover:!text-red-600 hover:!border-red-200">
             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
             Sair

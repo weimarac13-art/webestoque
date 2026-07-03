@@ -110,10 +110,45 @@ include 'layout/header.php';
 
 <style>
     @media print {
+        /* Hide UI elements */
         .sidebar-item, aside, button, header, .lg\:hidden { display: none !important; }
         main { padding: 0 !important; margin: 0 !important; }
-        .bg-white { border: none !important; box-shadow: none !important; }
+        
+        /* Clean white background */
         body { background-color: white !important; }
+        
+        /* Professional report font sizes */
+        * { 
+            font-size: 14px !important; 
+            line-height: 1.5 !important;
+            color: #000 !important;
+            box-shadow: none !important;
+        }
+        
+        /* Titles */
+        h1, .text-2xl { font-size: 18px !important; font-weight: bold !important; margin-bottom: 15px !important; border-bottom: 1px solid #ccc !important; padding-bottom: 5px !important; }
+        h3, h4, .text-base { font-size: 14px !important; font-weight: bold !important; }
+        
+        /* Flatten cards into list rows */
+        .bg-white { border: none !important; box-shadow: none !important; background: transparent !important; }
+        .p-5 { padding: 8px 0 !important; border-bottom: 1px solid #eee !important; }
+        .rounded-2xl { border-radius: 0 !important; }
+        .gap-4 { gap: 10px !important; }
+        
+        /* Hide icons for a cleaner look */
+        .h-12.w-12 { display: none !important; }
+        
+        /* Adjust alignment of quantities */
+        .text-2xl.font-black { font-size: 14px !important; font-weight: bold !important; display: inline !important; }
+        .text-\[10px\] { display: inline !important; font-size: 14px !important; margin-left: 4px !important; text-transform: lowercase !important; }
+        
+        /* Remove low stock badges */
+        .bg-orange-50 { display: none !important; }
+        
+        /* Remove flex spacing to compact the list */
+        .mt-4, .mb-4 { margin-top: 5px !important; margin-bottom: 5px !important; }
+        .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 10px !important; }
+        .space-y-3 > :not([hidden]) ~ :not([hidden]) { margin-top: 0 !important; }
     }
 </style>
 

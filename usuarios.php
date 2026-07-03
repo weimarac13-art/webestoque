@@ -19,9 +19,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt = $db->prepare("UPDATE users SET nome=:n, username=:u, perfil=:pf WHERE id=:id");
                 $stmt->execute([':id'=>$id, ':n'=>$nome, ':u'=>$username, ':pf'=>$perfil]);
             }
+            require_once 'api/logger.php';
+            logAction($db, 'Editar', "Usuário " . $nome . " editado.");
         } else {
             $stmt = $db->prepare("INSERT INTO users (nome, username, password, perfil) VALUES (:n, :u, :p, :pf)");
             $stmt->execute([':n'=>$nome, ':u'=>$username, ':p'=>$password, ':pf'=>$perfil]);
+            require_once 'api/logger.php';
+            logAction($db, 'Novo', "Usuário " . $nome . " cadastrado.");
         }
         header("Location: usuarios.php");
         exit;
@@ -32,6 +36,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($id) {
             $stmt = $db->prepare("DELETE FROM users WHERE id = :id");
             $stmt->execute([':id' => $id]);
+            require_once 'api/logger.php';
+            logAction($db, 'Excluir', "Usuário ID " . $id . " excluído.");
         }
         header("Location: usuarios.php");
         exit;
@@ -98,7 +104,7 @@ include 'layout/header.php';
                             >
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                             </button>
-                            <form method="POST" action="usuarios.php" onsubmit="return confirm('Excluir este usuário?');" class="inline">
+                            <form method="POST" action="usuarios.php" onsubmit="event.preventDefault(); WebEstoque.confirm('Excluir este usuário?', 'Excluir Usuário', 'danger').then(c => { if(c) this.submit(); });" class="inline">
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="id" value="<?= $u['id'] ?>">
                                 <button type="submit" class="p-2.5 rounded-xl text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors">

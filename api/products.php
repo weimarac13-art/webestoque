@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once 'db.php';
+require_once 'logger.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $db = Database::getConnection();
@@ -73,6 +74,7 @@ switch ($method) {
                     ':description' => $data['description'],
                     ':estoque' => isset($data['estoque']) ? $data['estoque'] : null
                 ]);
+                logAction($db, 'Editar', "Produto " . $data['name'] . " editado.");
             } else {
                 // Insert
                 $sql = "INSERT INTO products (id, name, sku, category, quantity, minQuantity, costPrice, salePrice, supplier, location, description, createdAt, estoque) 
@@ -94,6 +96,7 @@ switch ($method) {
                     ':createdAt' => $data['createdAt'] ?? date('Y-m-d H:i:s'),
                     ':estoque' => isset($data['estoque']) ? $data['estoque'] : null
                 ]);
+                logAction($db, 'Novo', "Produto " . $data['name'] . " cadastrado.");
             }
             echo json_encode(["success" => true, "id" => $data['id']]);
         } catch(PDOException $e) {
@@ -114,6 +117,7 @@ switch ($method) {
         try {
             $stmt = $db->prepare("DELETE FROM products WHERE id = :id");
             $stmt->execute([':id' => $id]);
+            logAction($db, 'Excluir', "Produto ID " . $id . " excluído.");
             echo json_encode(["success" => true]);
         } catch(PDOException $e) {
             http_response_code(500);

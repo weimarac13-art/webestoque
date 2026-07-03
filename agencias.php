@@ -12,10 +12,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($id) {
             $stmt = $db->prepare("UPDATE agencies SET codigo = :codigo, nome = :nome WHERE id = :id");
             $stmt->execute([':id' => $id, ':codigo' => $codigo, ':nome' => $nome]);
+            require_once 'api/logger.php';
+            logAction($db, 'Editar', "Agência " . $nome . " editada.");
         } else {
             $id = 'ag-' . time();
             $stmt = $db->prepare("INSERT INTO agencies (id, codigo, nome, createdAt) VALUES (:id, :codigo, :nome, :createdAt)");
             $stmt->execute([':id' => $id, ':codigo' => $codigo, ':nome' => $nome, ':createdAt' => date('Y-m-d H:i:s')]);
+            require_once 'api/logger.php';
+            logAction($db, 'Novo', "Agência " . $nome . " cadastrada.");
         }
         header("Location: agencias.php?saved=1");
         exit;
@@ -26,6 +30,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($id) {
             $stmt = $db->prepare("DELETE FROM agencies WHERE id = :id");
             $stmt->execute([':id' => $id]);
+            require_once 'api/logger.php';
+            logAction($db, 'Excluir', "Agência ID " . $id . " excluída.");
         }
         header("Location: agencias.php");
         exit;
@@ -116,7 +122,7 @@ require_once 'middleware.php'; foreach ($agencies as $ag): ?>
                             >
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                             </button>
-                            <form method="POST" action="agencias.php" onsubmit="return confirm('Excluir esta agência?');" class="inline">
+                            <form method="POST" action="agencias.php" onsubmit="event.preventDefault(); WebEstoque.confirm('Excluir esta agência?', 'Excluir Agência', 'danger').then(c => { if(c) this.submit(); });" class="inline">
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="id" value="<?= $ag['id'] ?>">
                                 <button type="submit" class="p-2.5 rounded-xl text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors">
