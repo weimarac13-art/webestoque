@@ -157,3 +157,41 @@ require_once __DIR__ . '/../middleware.php';
     <!-- Main Content -->
     <main class="flex-1 h-full overflow-y-auto bg-gray-50/50 lg:pt-0 pt-16 pb-24 lg:pb-0 relative">
         <div class="p-6 max-w-7xl mx-auto space-y-6">
+        
+        <script>
+            let deferredPrompt;
+            window.addEventListener('beforeinstallprompt', (e) => {
+                // Prevent Chrome 67 and earlier from automatically showing the prompt
+                e.preventDefault();
+                // Stash the event so it can be triggered later.
+                deferredPrompt = e;
+                // Update UI to notify the user they can add to home screen
+                if (!document.getElementById('pwa-install-banner')) {
+                    const banner = document.createElement('div');
+                    banner.id = 'pwa-install-banner';
+                    banner.className = 'fixed bottom-24 left-4 right-4 z-50 bg-[#2563eb] text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between lg:hidden';
+                    banner.innerHTML = `
+                        <div class="flex flex-col">
+                            <span class="font-bold text-sm">App WebEstoque</span>
+                            <span class="text-xs opacity-90">Instale no seu celular (Ocupa Tela Cheia)</span>
+                        </div>
+                        <button id="pwa-install-btn" class="bg-white text-[#2563eb] font-bold px-4 py-2 rounded-xl shadow text-sm active:scale-95 transition-transform">Instalar</button>
+                    `;
+                    document.body.appendChild(banner);
+                    
+                    document.getElementById('pwa-install-btn').addEventListener('click', async () => {
+                        banner.style.display = 'none';
+                        if (deferredPrompt) {
+                            deferredPrompt.prompt();
+                            const { outcome } = await deferredPrompt.userChoice;
+                            deferredPrompt = null;
+                        }
+                    });
+                }
+            });
+            window.addEventListener('appinstalled', () => {
+                const banner = document.getElementById('pwa-install-banner');
+                if (banner) banner.style.display = 'none';
+                deferredPrompt = null;
+            });
+        </script>

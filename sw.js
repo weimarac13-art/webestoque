@@ -24,14 +24,14 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  const url = event.request.url;
-  // Ignore non-GET, PHP pages, API
-  if (event.request.method !== 'GET' || url.includes('.php') || url.includes('/api/')) {
-      return;
-  }
+  if (event.request.method !== 'GET') return;
+  
   event.respondWith(
     caches.match(event.request).then(response => {
         return response || fetch(event.request);
+    }).catch(() => {
+        // Fallback for offline if needed
+        return new Response('Offline mode');
     })
   );
 });
