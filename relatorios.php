@@ -129,9 +129,15 @@ include 'layout/header.php';
         h1, .text-2xl { font-size: 18px !important; font-weight: bold !important; margin-bottom: 15px !important; border-bottom: 1px solid #ccc !important; padding-bottom: 5px !important; }
         h3, h4, .text-base { font-size: 14px !important; font-weight: bold !important; }
         
-        /* Flatten cards into list rows */
+        /* Flatten cards into list rows and FORCE horizontal layout even on mobile */
         .bg-white { border: none !important; box-shadow: none !important; background: transparent !important; }
-        .p-5 { padding: 8px 0 !important; border-bottom: 1px solid #eee !important; }
+        .p-5 { 
+            padding: 8px 0 !important; 
+            border-bottom: 1px solid #eee !important; 
+            flex-direction: row !important; 
+            align-items: center !important; 
+            justify-content: space-between !important; 
+        }
         .rounded-2xl { border-radius: 0 !important; }
         .gap-4 { gap: 10px !important; }
         
@@ -146,7 +152,7 @@ include 'layout/header.php';
         .bg-orange-50 { display: none !important; }
         
         /* Remove flex spacing to compact the list */
-        .mt-4, .mb-4 { margin-top: 5px !important; margin-bottom: 5px !important; }
+        .mt-4, .mb-4 { margin-top: 0 !important; margin-bottom: 5px !important; }
         .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 10px !important; }
         .space-y-3 > :not([hidden]) ~ :not([hidden]) { margin-top: 0 !important; }
     }
