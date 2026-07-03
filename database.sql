@@ -1,5 +1,3 @@
-CREATE DATABASE IF NOT EXISTS webestoque;
-USE webestoque;
 
 CREATE TABLE IF NOT EXISTS products (
     id VARCHAR(50) PRIMARY KEY,

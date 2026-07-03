@@ -138,7 +138,7 @@ require_once 'middleware.php'; endif; ?>
                 
                 <div>
                     <label class="block text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">Matrícula *</label>
-                    <input type="text" name="matricula" required x-model="formMatricula" class="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 text-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 transition-all">
+                    <input type="text" inputmode="numeric" name="matricula" required x-model="formMatricula" @input="formMatricula = 'P' + formMatricula.replace(/[^0-9]/g, '')" class="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 text-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 transition-all uppercase">
                 </div>
                 <div>
                     <label class="block text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">Nome Completo *</label>
@@ -147,7 +147,7 @@ require_once 'middleware.php'; endif; ?>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">CPF *</label>
-                        <input type="text" name="cpf" required x-mask="999.999.999-99" x-model="formCpf" class="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 text-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 transition-all">
+                        <input type="text" inputmode="numeric" name="cpf" required x-mask="999.999.999-99" x-model="formCpf" class="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 text-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 transition-all">
                     </div>
                     <div>
                         <label class="block text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">RG *</label>
@@ -160,12 +160,12 @@ require_once 'middleware.php'; endif; ?>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">Celular Pessoal *</label>
-                        <input type="text" name="celPessoal" required x-mask="(99) 9 9999-9999" x-model="formCp" class="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 text-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 transition-all">
+                        <label class="block text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">Cel Pessoal *</label>
+                        <input type="text" inputmode="numeric" name="celPessoal" required x-mask="(99) 9 9999-9999" x-model="formCp" class="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 text-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 transition-all">
                     </div>
                     <div>
                         <label class="block text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">Cel Corporativo</label>
-                        <input type="text" name="celCorporativo" x-mask="(99) 9 9999-9999" x-model="formCc" class="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 text-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 transition-all">
+                        <input type="text" inputmode="numeric" name="celCorporativo" x-mask="(99) 9 9999-9999" x-model="formCc" class="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 text-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 transition-all">
                     </div>
                 </div>
                 

@@ -4,7 +4,15 @@ require_once __DIR__ . '/../middleware.php';
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="WebEstoque">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="assets/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="assets/logo.png">
     <title>WebEstoque - Controle de Estoque</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine Plugins -->
@@ -19,25 +27,33 @@ require_once __DIR__ . '/../middleware.php';
         .sidebar-item.active { background-color: #2563eb; color: white; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3); }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden text-gray-900">
+<body class="flex h-[100dvh] overflow-hidden text-gray-900">
 
     <!-- Mobile Menu Button -->
-    <div x-data="{ sidebarOpen: false }" class="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 z-50 flex items-center justify-between px-4">
-        <div class="flex items-center gap-2">
-            <div class="h-8 w-8 bg-[#2563eb] rounded-lg flex items-center justify-center text-white font-bold">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                </svg>
-            </div>
-            <span class="font-black text-gray-900">WebEstoque</span>
-        </div>
-        <button @click="sidebarOpen = !sidebarOpen" class="p-2 bg-gray-100 rounded-lg">
+    <div x-data="{ sidebarOpen: false }" class="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 z-50 flex items-center px-4 gap-3">
+        <button @click="sidebarOpen = !sidebarOpen" class="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
             <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </button>
+        <div class="flex items-center gap-2">
+            <div class="h-8 w-8 bg-[#2563eb] rounded-lg flex items-center justify-center text-white font-bold shadow-sm">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                    <path d="M8 21h8M12 17v4"/>
+                    <text x="12" y="13" text-anchor="middle" font-size="9" font-weight="900" font-family="Arial, sans-serif" fill="currentColor" stroke="none">WE</text>
+                </svg>
+            </div>
+            <div class="flex flex-col justify-center" style="width: max-content;">
+                <span class="font-black text-xl tracking-tight leading-none text-[#2563eb] block mb-0.5" style="-webkit-text-stroke: 1.5px white; paint-order: stroke fill; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">WebEstoque</span>
+                <div class="w-full flex justify-between text-[8px] text-gray-400 font-bold uppercase leading-none">
+                    <?php foreach(str_split("Controle de Estoque") as $l) echo "<span>" . ($l == ' ' ? '&nbsp;' : $l) . "</span>"; ?>
+                </div>
+            </div>
+        </div>
         
+        <!-- Mobile Sidebar Overlay -->
+        <div x-show="sidebarOpen" class="fixed inset-0 top-16 bg-gray-900/50 z-40" @click="sidebarOpen = false" style="display: none;" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
         <!-- Mobile Sidebar -->
-        <div x-show="sidebarOpen" class="fixed inset-0 bg-gray-900/50 z-40" @click="sidebarOpen = false"></div>
-        <div x-show="sidebarOpen" class="fixed top-0 left-0 bottom-0 w-64 bg-white z-50 border-r border-gray-200 transition-transform transform" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full">
+        <div x-show="sidebarOpen" class="fixed top-16 left-0 bottom-0 w-64 bg-white z-40 border-r border-gray-200 transition-transform transform overflow-y-auto" x-transition:enter="transition ease-out duration-400" x-transition:enter-start="-translate-y-[150%]" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-300" x-transition:leave-start="translate-y-0" x-transition:leave-end="-translate-y-[150%]" style="display: none;">
             <?php include 'sidebar.php'; ?>
         </div>
     </div>
@@ -46,13 +62,17 @@ require_once __DIR__ . '/../middleware.php';
     <aside class="hidden lg:flex w-64 bg-white border-r border-gray-100 flex-col h-full z-10 shadow-sm relative pt-4">
         <div class="px-6 pb-6 border-b border-gray-50 flex items-center gap-3">
             <div class="h-10 w-10 bg-gradient-to-br from-[#2563eb] to-[#1e3a8a] rounded-xl flex items-center justify-center text-white shadow-md">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                    <path d="M8 21h8M12 17v4"/>
+                    <text x="12" y="13" text-anchor="middle" font-size="9" font-weight="900" font-family="Arial, sans-serif" fill="currentColor" stroke="none">WE</text>
                 </svg>
             </div>
-            <div>
-                <span class="font-black text-gray-900 text-[22px] leading-none block mb-0.5">WebEstoque</span>
-                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest block">Controle de Estoque</span>
+            <div class="flex flex-col justify-center" style="width: max-content;">
+                <span class="font-black text-[#2563eb] text-[26px] tracking-tight leading-none block mb-0.5" style="-webkit-text-stroke: 1.5px white; paint-order: stroke fill; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">WebEstoque</span>
+                <div class="w-full flex justify-between text-[10.5px] text-gray-400 font-bold uppercase leading-none">
+                    <?php foreach(str_split("Controle de Estoque") as $l) echo "<span>" . ($l == ' ' ? '&nbsp;' : $l) . "</span>"; ?>
+                </div>
             </div>
         </div>
         
@@ -62,5 +82,5 @@ require_once __DIR__ . '/../middleware.php';
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 h-full overflow-y-auto bg-gray-50/50 lg:pt-0 pt-16 relative">
+    <main class="flex-1 h-full overflow-y-auto bg-gray-50/50 lg:pt-0 pt-16 pb-24 lg:pb-0 relative">
         <div class="p-6 max-w-7xl mx-auto space-y-6">

@@ -83,10 +83,10 @@ $is_ready = !empty($ftp_config['ftp_host']) && !empty($ftp_config['ftp_user']) &
         <div class="lg:col-span-2">
             <div class="bg-gray-900 rounded-3xl border border-gray-800 shadow-xl overflow-hidden flex flex-col h-[600px]">
                 <div class="px-6 py-4 border-b border-gray-800 bg-gray-800/50 flex items-center justify-between">
-                    <div class="flex gap-1.5">
-                        <div class="w-3 h-3 rounded-full bg-red-400"></div>
-                        <div class="w-3 h-3 rounded-full bg-[#2563eb]"></div>
-                        <div class="w-3 h-3 rounded-full bg-[#2563eb]"></div>
+                    <div class="flex gap-2">
+                        <div id="dot-1" class="w-4 h-4 rounded-full bg-orange-500 transition-colors duration-300"></div>
+                        <div id="dot-2" class="w-4 h-4 rounded-full bg-gray-700 transition-colors duration-300"></div>
+                        <div id="dot-3" class="w-4 h-4 rounded-full bg-gray-700 transition-colors duration-300"></div>
                     </div>
                     <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">WebEstoque - Deploy Terminal</span>
                 </div>
@@ -102,6 +102,25 @@ $is_ready = !empty($ftp_config['ftp_host']) && !empty($ftp_config['ftp_user']) &
     const log = document.getElementById('deploy-log');
     const form = document.getElementById('deploy-form');
     const btn = document.getElementById('start-deploy');
+    const dot1 = document.getElementById('dot-1');
+    const dot2 = document.getElementById('dot-2');
+    const dot3 = document.getElementById('dot-3');
+
+    function updateDots(state) {
+        if (!dot1) return;
+        dot1.className = 'w-4 h-4 rounded-full bg-gray-700 transition-colors duration-300';
+        dot2.className = 'w-4 h-4 rounded-full bg-gray-700 transition-colors duration-300';
+        dot3.className = 'w-4 h-4 rounded-full bg-gray-700 transition-colors duration-300';
+
+        if (state === 'initial') {
+            dot1.classList.replace('bg-gray-700', 'bg-orange-500');
+        } else if (state === 'deploying') {
+            dot2.classList.replace('bg-gray-700', 'bg-red-500');
+            dot2.classList.add('animate-pulse');
+        } else if (state === 'success') {
+            dot3.classList.replace('bg-gray-700', 'bg-green-500');
+        }
+    }
 
     function appendLog(category, message) {
         if (!log) return;
@@ -146,6 +165,7 @@ $is_ready = !empty($ftp_config['ftp_host']) && !empty($ftp_config['ftp_user']) &
             btn.innerHTML = 'Sincronizando...';
             log.innerHTML = '';
             appendLog('info', 'Iniciando processo de deploy...');
+            updateDots('deploying');
 
             try {
                 const eventSource = new EventSource(`api/run-deploy.php?include_db=${includeDb ? 1 : 0}`);
@@ -156,6 +176,7 @@ $is_ready = !empty($ftp_config['ftp_host']) && !empty($ftp_config['ftp_user']) &
                         appendLog(data.status, `Enviando: ${data.file}`);
                     } else if (data.type === 'finished') {
                         appendLog('success', 'Sincronização concluída com sucesso!');
+                        updateDots('success');
                         eventSource.close();
                         btn.disabled = false;
                         btn.innerHTML = 'Sincronização Concluída!';
@@ -164,6 +185,7 @@ $is_ready = !empty($ftp_config['ftp_host']) && !empty($ftp_config['ftp_user']) &
                         }, 3000);
                     } else if (data.type === 'error') {
                         appendLog('error', `Erro: ${data.message}`);
+                        updateDots('initial');
                         eventSource.close();
                         btn.disabled = false;
                         btn.innerHTML = 'Tentar Novamente';
@@ -172,6 +194,7 @@ $is_ready = !empty($ftp_config['ftp_host']) && !empty($ftp_config['ftp_user']) &
 
                 eventSource.onerror = () => {
                     appendLog('error', 'Erro na conexão com o servidor de deploy.');
+                    updateDots('initial');
                     eventSource.close();
                     btn.disabled = false;
                 };

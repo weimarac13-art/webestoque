@@ -9,7 +9,7 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
 
 $error = '';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    require_once 'api/db.php';
+    require_once('api/db.php');
     $db = Database::getConnection();
     
     $username = $_POST['username'] ?? '';

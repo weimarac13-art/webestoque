@@ -75,7 +75,7 @@ elseif (in_array($currentPage, ['alterar_senha.php'])) $activeGroup = 'alterar_s
         <div x-show="ferramentasOpen" class="pl-8 pr-2 py-2 space-y-1">
             <a href="logs.php" class="sidebar-item !py-2 text-sm <?= $currentPage == 'logs.php' ? 'text-[#2563eb] font-bold' : '' ?>">Logs</a>
             <a href="backup.php" class="sidebar-item !py-2 text-sm <?= $currentPage == 'backup.php' ? 'text-[#2563eb] font-bold' : '' ?>">Backup</a>
-            <a href="deploy.php" class="sidebar-item !py-2 text-sm <?= $currentPage == 'deploy.php' ? 'text-[#2563eb] font-bold' : '' ?>">Deploy</a>
+            <a href="deploy.php" class="sidebar-item !py-2 text-sm <?= $currentPage == 'deploy.php' ? 'text-[#2563eb] font-bold' : '' ?>">Deploy FTP</a>
             <a href="usuarios.php" class="sidebar-item !py-2 text-sm <?= $currentPage == 'usuarios.php' ? 'text-[#2563eb] font-bold' : '' ?>">Cadastrar Usuário</a>
         </div>
     </div>

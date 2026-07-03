@@ -11,6 +11,8 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     echo "data: " . json_encode(['type' => 'error', 'message' => 'Não autenticado']) . "\n\n";
     exit;
 }
+session_write_close(); // Libera o lock da sessão para não travar o sistema
+
 
 require_once 'db.php';
 require_once 'ftp_sync.php';

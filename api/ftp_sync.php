@@ -45,9 +45,13 @@ class FtpDeployer {
     }
 
     public function connect() {
-        $this->conn = @ftp_connect($this->host, $this->port, 10);
+        $this->conn = @ftp_ssl_connect($this->host, $this->port, 30);
         if (!$this->conn) {
-            $this->error_message = 'Não foi possível conectar ao host ' . $this->host . ' na porta ' . $this->port . '. Verifique a conexão de rede.';
+            $this->conn = @ftp_connect($this->host, $this->port, 30);
+        }
+
+        if (!$this->conn) {
+            $this->error_message = 'Não foi possível conectar ao host ' . $this->host . ' na porta ' . $this->port . '. Verifique a conexão de rede ou se o host exige TLS implícito.';
             return false;
         }
         

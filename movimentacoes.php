@@ -164,24 +164,31 @@ if ($showPrompt) {
                     $phoneClean = preg_replace('/[^0-9]/', '', $phone);
                     // Assume default Brazil country code if not present (usually cel starts with 11-99, so 11 digits)
                     if (strlen($phoneClean) <= 11) $phoneClean = '55' . $phoneClean;
-                    $msg = "Olá " . $savedMov['tecnico'] . ", o equipamento *" . $savedMov['productName'] . "* foi liberado no estoque para você.";
-                    if (!empty($savedMov['chamado'])) $msg .= "\nChamado: " . $savedMov['chamado'];
-                    if (!empty($savedMov['serie'])) $msg .= "\nSérie: " . $savedMov['serie'];
+                    $msg = "👋 Olá " . $savedMov['tecnico'] . ", foi liberado um equipamento para você:\n\n";
+                    $msg .= "📦 *Peça:* " . $savedMov['productName'] . "\n";
+                    $typeEmoji = $savedMov['type'] == 'ENTRADA' ? '🟢' : '🔴';
+                    $msg .= $typeEmoji . " *Tipo:* " . $savedMov['type'] . "\n";
+                    $msg .= "🔢 *Quantidade:* " . $savedMov['quantity'] . " un\n";
+                    if (!empty($savedMov['chamado'])) $msg .= "🎫 *Chamado:* " . $savedMov['chamado'] . "\n";
+                    if (!empty($savedMov['serie'])) $msg .= "🏷️ *Série:* " . $savedMov['serie'] . "\n";
                     $whatsappUrl = "https://wa.me/" . $phoneClean . "?text=" . urlencode($msg);
                     $whatsappTech = $savedMov['tecnico'];
                 }
             }
         } elseif ($savedMov['estoque'] == 'Caixa Econômica Federal') {
-            $msg = "Olá! Foi registrada uma nova movimentação no estoque CAIXA:\n\n";
-            $msg .= "• Peça: " . $savedMov['productName'] . "\n";
-            $msg .= "• Tipo: " . $savedMov['type'] . "\n";
-            $msg .= "• Quantidade: " . $savedMov['quantity'] . " un\n";
-            if (!empty($savedMov['chamado'])) $msg .= "• Chamado: " . $savedMov['chamado'] . "\n";
-            if (!empty($savedMov['serie'])) $msg .= "• Série: " . $savedMov['serie'] . "\n";
-            if (!empty($savedMov['unidadeDestino'])) $msg .= "• Destino: " . $savedMov['unidadeDestino'] . "\n";
+            $msg = "👋 Olá! Foi registrada uma nova movimentação no estoque CAIXA:\n\n";
+            $msg .= "📦 *Peça:* " . $savedMov['productName'] . "\n";
+            $typeEmoji = $savedMov['type'] == 'ENTRADA' ? '🟢' : '🔴';
+            $msg .= $typeEmoji . " *Tipo:* " . $savedMov['type'] . "\n";
+            $msg .= "🔢 *Quantidade:* " . $savedMov['quantity'] . " un\n";
+            if (!empty($savedMov['chamado'])) $msg .= "🎫 *Chamado:* " . $savedMov['chamado'] . "\n";
+            if (!empty($savedMov['serie'])) $msg .= "🏷️ *Série:* " . $savedMov['serie'] . "\n";
+            if (!empty($savedMov['unidadeDestino'])) $msg .= "🏢 *Destino:* " . $savedMov['unidadeDestino'] . "\n";
+            if (!empty($savedMov['usuario'])) $msg .= "👤 *Recebedor:* " . $savedMov['usuario'] . "\n";
+            if (!empty($savedMov['matricula'])) $msg .= "🆔 *Matrícula:* " . $savedMov['matricula'] . "\n";
             
             $teamsUser = "c138776@caixa.gov.br"; 
-            $teamsUrl = "https://teams.microsoft.com/l/chat/0/0?users=" . urlencode($teamsUser) . "&message=" . urlencode($msg);
+            $teamsUrl = "msteams://teams.microsoft.com/l/chat/0/0?users=" . urlencode($teamsUser) . "&message=" . urlencode($msg);
         }
     }
 }
@@ -364,8 +371,8 @@ include 'layout/header.php';
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Quantidade *</label>
-                        <input type="number" name="quantity" x-model="quantity" required min="1" class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-gray-500 focus:ring-1">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">QTD. *</label>
+                        <input type="text" inputmode="numeric" name="quantity" x-model="quantity" required maxlength="2" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length === 2) { let focusable = Array.from(this.closest('form').querySelectorAll('input:not([type=hidden]):not([disabled]), select:not([disabled])')); let idx = focusable.indexOf(this); if(idx > -1 && focusable[idx+1]) focusable[idx+1].focus(); }" class="w-full max-w-[5rem] rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-gray-500 focus:ring-1 text-center">
                     </div>
                     <template x-if="type === 'SAÍDA'">
                         <div>
@@ -483,7 +490,7 @@ include 'layout/header.php';
             </div>
             
             <h3 class="text-xl font-extrabold text-[#1f2937] mb-2 text-left">Notificar via Teams</h3>
-            <p class="text-sm text-[#6b7280] mb-8 text-left leading-relaxed font-medium">Registro salvo! Deseja enviar os detalhes desta movimentação para C138776 via Teams?</p>
+            <p class="text-sm text-[#6b7280] mb-8 text-left leading-relaxed font-medium">Registro salvo! Deseja enviar os detalhes desta movimentação para MOZART ALMEIDA VERAS via Teams?</p>
             
             <div class="flex justify-end items-center gap-2">
                 <button @click="showPrompt = false" class="px-5 py-2.5 text-sm font-bold text-[#4b5563] hover:text-[#111827] transition">

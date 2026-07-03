@@ -159,13 +159,13 @@ require_once 'middleware.php'; endif; ?>
                 
                 <div>
                     <label class="block text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">Cód (4 chars) *</label>
-                    <input type="text" id="ag_codigo" name="codigo" required maxlength="4" x-model="formCodigo" @input="checkCode()" class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm uppercase outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500/30" :class="{'border-red-400 ring-1 ring-red-400': codeExists}">
+                    <input type="text" inputmode="numeric" id="ag_codigo" name="codigo" required maxlength="4" x-model="formCodigo" @input="formCodigo = formCodigo.replace(/[^0-9]/g, ''); checkCode()" class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm uppercase outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500/30" :class="{'border-red-400 ring-1 ring-red-400': codeExists}">
                     <p x-show="codeExists" class="text-xs text-red-500 font-bold mt-1" style="display:none;">Este código já está cadastrado!</p>
                 </div>
                 
                 <div>
                     <label class="block text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">Nome *</label>
-                    <input type="text" id="ag_nome" name="nome" required x-model="formNome" class="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 text-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 transition-all">
+                    <input type="text" id="ag_nome" name="nome" required x-model="formNome" @input="formNome = formNome.toUpperCase()" class="w-full rounded-xl border-0 bg-slate-50 px-4 py-3.5 text-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 transition-all uppercase">
                 </div>
                 
                 <div class="flex gap-3 pt-2">
