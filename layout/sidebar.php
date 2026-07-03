@@ -65,11 +65,11 @@ elseif (in_array($currentPage, ['alterar_senha.php'])) $activeGroup = 'alterar_s
 
     <!-- Modo Escuro Toggle -->
     <div class="mt-2">
-        <button id="toggle-dark-mode" class="w-full sidebar-item flex items-center justify-between cursor-pointer">
+        <button class="toggle-dark-mode w-full sidebar-item flex items-center justify-between cursor-pointer">
             <div class="flex items-center">
-                <svg id="dark-icon-moon" class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
-                <svg id="dark-icon-sun" class="w-5 h-5 mr-3 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"></circle><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v2M12 20v2m-7.07-15.07l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2m-11.34 5.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
-                <span id="dark-mode-text">Modo Escuro</span>
+                <svg class="dark-icon-moon w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
+                <svg class="dark-icon-sun w-5 h-5 mr-3 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"></circle><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v2M12 20v2m-7.07-15.07l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2m-11.34 5.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+                <span class="dark-mode-text">Modo Escuro</span>
             </div>
         </button>
     </div>

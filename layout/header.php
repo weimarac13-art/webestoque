@@ -65,34 +65,38 @@ require_once __DIR__ . '/../middleware.php';
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const toggleDark = document.getElementById('toggle-dark-mode');
-            const darkText   = document.getElementById('dark-mode-text');
-            const sunIcon    = document.getElementById('dark-icon-sun');
-            const moonIcon   = document.getElementById('dark-icon-moon');
+            const toggles = document.querySelectorAll('.toggle-dark-mode');
 
             function updateDarkUI() {
                 const isDark = document.documentElement.classList.contains('dark');
-                if (darkText && sunIcon && moonIcon) {
-                    if (isDark) {
-                        darkText.textContent = 'Modo Claro';
-                        sunIcon.classList.remove('hidden');
-                        moonIcon.classList.add('hidden');
-                    } else {
-                        darkText.textContent = 'Modo Escuro';
-                        sunIcon.classList.add('hidden');
-                        moonIcon.classList.remove('hidden');
+                toggles.forEach(toggle => {
+                    const darkText = toggle.querySelector('.dark-mode-text');
+                    const sunIcon  = toggle.querySelector('.dark-icon-sun');
+                    const moonIcon = toggle.querySelector('.dark-icon-moon');
+                    
+                    if (darkText && sunIcon && moonIcon) {
+                        if (isDark) {
+                            darkText.textContent = 'Modo Claro';
+                            sunIcon.classList.remove('hidden');
+                            moonIcon.classList.add('hidden');
+                        } else {
+                            darkText.textContent = 'Modo Escuro';
+                            sunIcon.classList.add('hidden');
+                            moonIcon.classList.remove('hidden');
+                        }
                     }
-                }
+                });
                 localStorage.setItem('darkMode', isDark);
             }
 
-            if (toggleDark) {
-                toggleDark.addEventListener('click', () => {
+            toggles.forEach(toggle => {
+                toggle.addEventListener('click', () => {
                     document.documentElement.classList.toggle('dark');
                     updateDarkUI();
                 });
-                updateDarkUI();
-            }
+            });
+            
+            updateDarkUI();
         });
     </script>
 </head>
