@@ -22,6 +22,18 @@ require_once __DIR__ . '/../middleware.php';
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    <script>
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js');
@@ -33,7 +45,56 @@ require_once __DIR__ . '/../middleware.php';
         .sidebar-item { display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; color: #4b5563; font-weight: 600; transition: all 0.3s ease; border: 1px solid transparent; }
         .sidebar-item:not(.active):hover { background-color: #ffffff; color: #2563eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); transform: translateY(-2px); border-color: #dbeafe; }
         .sidebar-item.active { background-color: #2563eb; color: white; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3); }
+        
+        /* Dark Mode Overrides */
+        .dark body { background-color: #0f172a; color: #f8fafc; }
+        .dark .bg-white { background-color: #1e293b !important; border-color: #334155 !important; box-shadow: none !important; }
+        .dark .text-gray-900, .dark .text-slate-900 { color: #f1f5f9 !important; }
+        .dark .text-gray-800, .dark .text-slate-800 { color: #e2e8f0 !important; }
+        .dark .text-gray-600, .dark .text-gray-700 { color: #cbd5e1 !important; }
+        .dark .text-gray-500, .dark .text-slate-500 { color: #94a3b8 !important; }
+        .dark .border-gray-100, .dark .border-gray-200, .dark .border-slate-200 { border-color: #334155 !important; }
+        .dark .bg-gray-50, .dark .bg-slate-50, .dark .bg-gray-100 { background-color: #0f172a !important; }
+        .dark .hover\:bg-gray-50:hover, .dark .hover\:bg-gray-100:hover { background-color: #334155 !important; }
+        .dark input, .dark select, .dark textarea, .dark [type="text"] { background-color: #0f172a !important; border-color: #334155 !important; color: #f8fafc !important; }
+        .dark .sidebar-item:not(.active) { color: #94a3b8; }
+        .dark .sidebar-item:not(.active):hover { background-color: #334155 !important; color: #60a5fa !important; border-color: #1e3a8a !important; }
+        .dark th, .dark label { color: #f8fafc !important; }
+        .dark table td { border-color: #334155 !important; }
+        .dark #modal-overlay, .dark .modal-bg { background: rgba(15, 23, 42, 0.8) !important; }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleDark = document.getElementById('toggle-dark-mode');
+            const darkText   = document.getElementById('dark-mode-text');
+            const sunIcon    = document.getElementById('dark-icon-sun');
+            const moonIcon   = document.getElementById('dark-icon-moon');
+
+            function updateDarkUI() {
+                const isDark = document.documentElement.classList.contains('dark');
+                if (darkText && sunIcon && moonIcon) {
+                    if (isDark) {
+                        darkText.textContent = 'Modo Claro';
+                        sunIcon.classList.remove('hidden');
+                        moonIcon.classList.add('hidden');
+                    } else {
+                        darkText.textContent = 'Modo Escuro';
+                        sunIcon.classList.add('hidden');
+                        moonIcon.classList.remove('hidden');
+                    }
+                }
+                localStorage.setItem('darkMode', isDark);
+            }
+
+            if (toggleDark) {
+                toggleDark.addEventListener('click', () => {
+                    document.documentElement.classList.toggle('dark');
+                    updateDarkUI();
+                });
+                updateDarkUI();
+            }
+        });
+    </script>
 </head>
 <body class="flex h-[100dvh] overflow-hidden text-gray-900">
 
